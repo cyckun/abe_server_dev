@@ -32,7 +32,7 @@ class EditProfileForm(FlaskForm):
 class UploadAvatarForm(FlaskForm):
     image = FileField('Upload', validators=[
         FileRequired(),
-        FileAllowed(['jpg', 'png'], 'The file format should be .jpg or .png.')
+        FileAllowed(['jpg', 'png', 'txt'], 'The file format should be .jpg or .png. or txt')
     ])
     submit = SubmitField()
 

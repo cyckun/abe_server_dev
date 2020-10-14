@@ -18,6 +18,7 @@ from albumy.forms.main import DescriptionForm, TagForm, CommentForm
 from albumy.models import User, Photo, Tag, Follow, Collect, Comment, Notification
 from albumy.notifications import push_comment_notification, push_collect_notification
 from albumy.utils import rename_image, resize_image, redirect_back, flash_errors
+import  rsa
 
 main_bp = Blueprint('main', __name__)
 
@@ -44,6 +45,19 @@ def index():
 def explore():
     photos = Photo.query.order_by(func.random()).limit(12)
     return render_template('main/explore.html', photos=photos)
+
+@main_bp.route('/download_key')
+def download_key():
+    pubkey, privkey = rsa.newkeys(2048)
+    print("new rsa key generate.")
+    path = "./uploads/key1.txt"
+    test = b'1a'
+    with open(path, "wb") as f:
+        f.write(test)
+        f.close()
+    print("key write finish")
+    return send_from_directory(current_app.config['ALBUMY_UPLOAD_PATH'], filename="key.txt", as_attachment=True)
+   #return "download key"
 
 
 @main_bp.route('/search')
@@ -116,8 +130,8 @@ def get_avatar(filename):
 
 @main_bp.route('/upload', methods=['GET', 'POST'])
 @login_required
-@confirm_required
-@permission_required('UPLOAD')
+#@confirm_required
+#@permission_required('UPLOAD')
 def upload():
     if request.method == 'POST' and 'file' in request.files:
         f = request.files.get('file')
@@ -135,6 +149,21 @@ def upload():
         db.session.commit()
     return render_template('main/upload.html')
 
+@main_bp.route('/upload_file', methods=['GET', 'POST'])
+@login_required
+#@confirm_required
+#@permission_required('UPLOAD')
+def upload_file():
+    print("test, inter uplaod file")
+    if request.method == 'POST' and 'file' in request.files:
+        f = request.files.get('file')
+        f.save(os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], f.filename))
+    else:
+        #f = request.files.get('file')
+        #f.save(os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], f.filename))
+        print("wront path.")
+
+    return render_template('main/upload.html')
 
 @main_bp.route('/photo/<int:photo_id>')
 def show_photo(photo_id):
