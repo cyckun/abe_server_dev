@@ -1,7 +1,6 @@
 from __future__ import print_function
 import pyopenabe
 import time
-import rsa
 from flask import current_app
 
 def cpabe_usrkey_test():   # TA operate; not import msk; flag to check whether msk has existed.
