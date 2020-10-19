@@ -14,11 +14,11 @@ from sqlalchemy.sql.expression import func
 
 from albumy.decorators import confirm_required, permission_required
 from albumy.extensions import db
-from albumy.forms.main import DescriptionForm, TagForm, CommentForm
+from albumy.forms.main import DescriptionForm, TagForm, CommentForm, EncshareForm
 from albumy.models import User, Photo, Tag, Follow, Collect, Comment, Notification
 from albumy.notifications import push_comment_notification, push_collect_notification
 from albumy.utils import rename_image, resize_image, redirect_back, flash_errors
-import  rsa
+from albumy.blueprints.cpabe_init import cpabe_init
 
 main_bp = Blueprint('main', __name__)
 
@@ -43,21 +43,26 @@ def index():
 
 @main_bp.route('/explore')
 def explore():
+    print("test explore")
     photos = Photo.query.order_by(func.random()).limit(12)
     return render_template('main/explore.html', photos=photos)
 
+
 @main_bp.route('/download_key')
+@login_required
 def download_key():
-    pubkey, privkey = rsa.newkeys(2048)
-    print("new rsa key generate.")
-    path = "./uploads/key1.txt"
-    test = b'1a'
-    with open(path, "wb") as f:
-        f.write(test)
-        f.close()
-    print("key write finish")
+    print("test download")
+    # cpabe_init()
+
+    return send_from_directory(current_app.config['ALBUMY_UPLOAD_PATH'], filename="mpk.txt", as_attachment=True)
+
+
+@main_bp.route('/download_key')
+@login_required
+def download_userkey():
+    print("test download user_key")
+
     return send_from_directory(current_app.config['ALBUMY_UPLOAD_PATH'], filename="key.txt", as_attachment=True)
-   #return "download key"
 
 
 @main_bp.route('/search')
@@ -130,8 +135,8 @@ def get_avatar(filename):
 
 @main_bp.route('/upload', methods=['GET', 'POST'])
 @login_required
-#@confirm_required
-#@permission_required('UPLOAD')
+# @confirm_required
+# @permission_required('UPLOAD')
 def upload():
     if request.method == 'POST' and 'file' in request.files:
         f = request.files.get('file')
@@ -149,21 +154,23 @@ def upload():
         db.session.commit()
     return render_template('main/upload.html')
 
+
 @main_bp.route('/upload_file', methods=['GET', 'POST'])
 @login_required
-#@confirm_required
-#@permission_required('UPLOAD')
+# @confirm_required
+# @permission_required('UPLOAD')
 def upload_file():
     print("test, inter uplaod file")
     if request.method == 'POST' and 'file' in request.files:
         f = request.files.get('file')
         f.save(os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], f.filename))
     else:
-        #f = request.files.get('file')
-        #f.save(os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], f.filename))
+        # f = request.files.get('file')
+        # f.save(os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], f.filename))
         print("wront path.")
 
     return render_template('main/upload.html')
+
 
 @main_bp.route('/photo/<int:photo_id>')
 def show_photo(photo_id):
@@ -366,6 +373,7 @@ def reply_comment(comment_id):
 @main_bp.route('/delete/photo/<int:photo_id>', methods=['POST'])
 @login_required
 def delete_photo(photo_id):
+    print("delete ertlfsfk")
     photo = Photo.query.get_or_404(photo_id)
     if current_user != photo.author and not current_user.can('MODERATE'):
         abort(403)
@@ -381,6 +389,26 @@ def delete_photo(photo_id):
             return redirect(url_for('user.index', username=photo.author.username))
         return redirect(url_for('.show_photo', photo_id=photo_p.id))
     return redirect(url_for('.show_photo', photo_id=photo_n.id))
+
+
+@main_bp.route('/enc_share/<int:photo_id>', methods=['POST'])
+@login_required
+def enc_share(photo_id):
+    print("test inetrekk")
+    photo = Photo.query.get_or_404(photo_id)
+    if current_user != photo.author and not current_user.can('MODERATE'):
+        abort(403)
+
+    form = EncshareForm()
+    if form.validate_on_submit():
+        department = form.department.data
+        level = form.level.data
+        enc_policy = department + level
+
+    print("photo path:", photo.filename)
+
+    # return render_template('main/enc_share_file.html')
+    return "encfile test."
 
 
 @main_bp.route('/delete/comment/<int:comment_id>', methods=['POST'])

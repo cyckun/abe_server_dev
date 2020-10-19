@@ -23,3 +23,10 @@ class TagForm(FlaskForm):
 class CommentForm(FlaskForm):
     body = TextAreaField('', validators=[DataRequired()])
     submit = SubmitField()
+
+
+class EncshareForm(FlaskForm):
+    department = StringField('Dept', validators=[Optional(), Length(0, 500)])
+    level = StringField('Level', validators=[Optional(), Length(0, 500)])
+    submit = SubmitField()
+

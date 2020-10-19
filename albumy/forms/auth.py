@@ -21,25 +21,25 @@ class LoginForm(FlaskForm):
 
 
 class RegisterForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired(), Length(1, 30)])
-    country = StringField("Country", validators=[DataRequired(), Length(1, 30)])
+    #name = StringField('Name', validators=[DataRequired(), Length(1, 30)])
     email = StringField('Email', validators=[DataRequired(), Length(1, 254)])
-    username = StringField('Username', validators=[DataRequired(), Length(1, 20),
-                                                   Regexp('^[a-zA-Z0-9]*$',
-                                                          message='The username should contain only a-z, A-Z and 0-9.')])
+    #username = StringField('Username', validators=[DataRequired(), Length(1, 20),
+                                                 #Regexp('^[a-zA-Z0-9]*$',
+                                                       #message='The username should contain only a-z, A-Z and 0-9.')])
     password = PasswordField('Password', validators=[
         DataRequired(), Length(1, 8), EqualTo('password2')])
     password2 = PasswordField('Confirm password', validators=[DataRequired()])
     submit = SubmitField()
 
-    '''def validate_email(self, field):
+    def validate_email(self, field):
         if User.query.filter_by(email=field.data.lower()).first():
             raise ValidationError('The email is already in use.')
-            '''
 
+    '''
     def validate_username(self, field):
         if User.query.filter_by(username=field.data).first():
             raise ValidationError('The username is already in use.')
+    '''
 
 
 class ForgetPasswordForm(FlaskForm):

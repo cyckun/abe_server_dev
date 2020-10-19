@@ -16,17 +16,26 @@ from albumy.models import User
 
 class EditProfileForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(1, 30)])
-    username = StringField('Username', validators=[DataRequired(), Length(1, 20),
+    username = StringField('UserName', validators=[DataRequired(), Length(1, 9),
                                                    Regexp('^[a-zA-Z0-9]*$',
                                                           message='The username should contain only a-z, A-Z and 0-9.')])
+    jobnumber = StringField('Job Number', validators=[DataRequired(), Length(1, 9),
+                                                   Regexp('[0-9]',
+                                                          message='The jobnumber should contain only 0-9.')])
+    department = StringField('Department', validators=[DataRequired(), Length(1, 30)])
+    level = StringField('Level', validators=[DataRequired(), Length(1, 2)])
     website = StringField('Website', validators=[Optional(), Length(0, 255)])
-    location = StringField('City', validators=[Optional(), Length(0, 50)])
+    location = StringField('Location', validators=[Optional(), Length(0, 50)])
     bio = TextAreaField('Bio', validators=[Optional(), Length(0, 120)])
     submit = SubmitField()
 
     def validate_username(self, field):
         if field.data != current_user.username and User.query.filter_by(username=field.data).first():
             raise ValidationError('The username is already in use.')
+
+
+class DownloadskForm(FlaskForm):
+    submit = StringField()
 
 
 class UploadAvatarForm(FlaskForm):

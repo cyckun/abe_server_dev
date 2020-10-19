@@ -73,11 +73,11 @@
                 {% endfor %}
             {% else %}
                 <div class="tip text-center">
-                    <h3>No trends.</h3>
+                    <h3>还没有分享文件哦😯 .</h3>
                     <p><a href="{{ url_for('.explore') }}">Explore</a></p>
                 </div>
                <div class="tip text-center">
-                    <h3>Download Key.</h3>
+                    <h3>下载TA公钥</h3>
                     <p><a href="{{ url_for('.download_key') }}">Download_key</a></p>
                 </div>
             {% endif %}
@@ -93,11 +93,11 @@
     <div class="jumbotron">
         <div class="row">
             <div class="col-md-8">
-                <img src="{{ url_for('static', filename='images/index.jpg') }}" class="rounded img-fluid">
+                <img src="{{ url_for('static', filename='images/TA.png') }}" class="rounded img-fluid">
             </div>
             <div class="col-md-4 align-self-center">
-                <h1>Albumy</h1>
-                <p>Capture and remember every wonderful moment.</p>
+                <h1>TA FOR SHARING</h1>
+                <p>Capture the security on sharing and enjoy its convenience</p>
                 <p><a class="btn btn-primary btn-lg" href="{{ url_for('auth.register') }}">Join Now</a></p>
             </div>
         </div>

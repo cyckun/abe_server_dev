@@ -5,18 +5,19 @@
     :copyright: © 2018 Grey Li <withlihui@gmail.com>
     :license: MIT, see LICENSE for more details.
 """
-from flask import render_template, flash, redirect, url_for, current_app, request, Blueprint
+from flask import render_template, flash, redirect, url_for, current_app, request, Blueprint, send_from_directory
 from flask_login import login_required, current_user, fresh_login_required, logout_user
 
 from albumy.decorators import confirm_required, permission_required
 from albumy.emails import send_change_email_email
 from albumy.extensions import db, avatars
-from albumy.forms.user import EditProfileForm, UploadAvatarForm, CropAvatarForm, ChangeEmailForm, \
+from albumy.forms.user import EditProfileForm, DownloadskForm, UploadAvatarForm, CropAvatarForm, ChangeEmailForm, \
     ChangePasswordForm, NotificationSettingForm, PrivacySettingForm, DeleteAccountForm
 from albumy.models import User, Photo, Collect
 from albumy.notifications import push_follow_notification
 from albumy.settings import Operations
 from albumy.utils import generate_token, validate_token, redirect_back, flash_errors
+from albumy.blueprints.cpabe_usrkey import cpabe_usrkey
 
 user_bp = Blueprint('user', __name__)
 
@@ -104,6 +105,9 @@ def edit_profile():
     if form.validate_on_submit():
         current_user.name = form.name.data
         current_user.username = form.username.data
+        current_user.department = form.department.data
+        current_user.jobnumber = form.jobnumber.data
+        current_user.level = form.level.data
         current_user.bio = form.bio.data
         current_user.website = form.website.data
         current_user.location = form.location.data
@@ -116,6 +120,46 @@ def edit_profile():
     form.website.data = current_user.website
     form.location.data = current_user.location
     return render_template('user/settings/edit_profile.html', form=form)
+
+
+def set_userattri():
+    print("jobnumber:", current_user.jobnumber)
+    print(current_user.jobnumber == None)
+    if current_user.jobnumber != None:
+        attri = "Name:"
+        attri += current_user.name + "|"
+        attri += "Dept:" + current_user.department + "|"
+        attri += "Level:" + current_user.level
+        return attri
+    else:
+        return ""
+
+
+@user_bp.route('/settings/download_sk', methods=['GET', 'POST'])
+@login_required
+def download_sk():
+    form = DownloadskForm()
+    # if form.validate_on_submit():
+    '''
+        current_user.name = form.name.data
+        current_user.username = form.username.data
+        current_user.bio = form.bio.data
+        current_user.website = form.website.data
+        current_user.location = form.location.data
+        db.session.commit()
+    '''
+    attri = set_userattri()
+    if attri == "": return "set profile first"
+
+    print("test attri:", attri)
+    ret = cpabe_usrkey(attri)
+
+    flash('sk updated.', 'success')
+    # filename = current_user.jobnumber
+    # return redirect(url_for('.index', username=current_user.username))
+    return send_from_directory(current_app.config['ALBUMY_UPLOAD_PATH'], filename="sk.txt", as_attachment=True)
+    # return render_template('user/settings/edit_profile.html', form=form)
+    # return "download sk OK "
 
 
 @user_bp.route('/settings/avatar')

@@ -14,6 +14,7 @@ from albumy.forms.auth import LoginForm, RegisterForm, ForgetPasswordForm, Reset
 from albumy.models import User
 from albumy.settings import Operations
 from albumy.utils import generate_token, validate_token, redirect_back
+import random, string
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -65,17 +66,20 @@ def register():
 
     form = RegisterForm()
     if form.validate_on_submit():
-        name = form.name.data
+        #name = form.name.data
+        name =''.join(random.sample(string.ascii_letters + string.digits, 8))
         email = form.email.data.lower()
-        username = form.username.data
+        # username = form.username.data
+        username = name   # register, random init username and name;
         password = form.password.data
         user = User(name=name, email=email, username=username)
+
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
-        token = generate_token(user=user, operation='confirm')
-        send_confirm_email(user=user, token=token)
-        flash('Confirm email sent, check your inbox.', 'info')
+        #token = generate_token(user=user, operation='confirm')
+        #send_confirm_email(user=user, token=token)
+        #flash('Confirm email sent, check your inbox.', 'info')
         return redirect(url_for('.login'))
     return render_template('auth/register.html', form=form)
 

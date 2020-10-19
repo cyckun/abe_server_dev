@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     {% block head %}
-        <title>{% block title %}{% endblock %} - Albumy</title>
+        <title>{% block title %}{% endblock %} - TA</title>
         <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
         {% block styles %}
             <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
@@ -33,7 +33,7 @@
                     {{ render_nav_item('main.index', 'Home') }}
                     {{ render_nav_item('main.explore', 'Explore') }}
                     <form class="form-inline my-2 my-lg-0" action="{{ url_for('main.search') }}">
-                        <input type="text" name="q" class="form-control mr-sm-1" placeholder="Photo, tag or user"
+                        <input type="text" name="q" class="form-control mr-sm-1" placeholder="Files, or user"
                                required>
                         <button class="btn btn-light my-2 my-sm-0" type="submit">
                             <span class="oi oi-magnifying-glass"></span>
@@ -99,14 +99,13 @@
         {% block footer %}
             <footer>
                 <p class="float-left">
-                    <small>&copy; 2018
-                        <a href="http://greyli.com" title="Written by Grey Li">Grey Li</a> -
-                        <a href="https://github.com/greyli/albumy" title="Fork me on GitHub">GitHub</a> -
+                    <small>&copy; 2020
+                        <a href="https://github.com/cyckun/albumy" title="Fork me on GitHub">GitHub</a> -
                         <a href="http://helloflask.com" title="A HelloFlask project">HelloFlask</a>
                     </small>
                 </p>
                 <p class="float-right">
-                    <small>Capture and share every wonderful moment.</small>
+                    <small>Trused Authority for data sharing.</small>
                 </p>
             </footer>
         {% endblock %}
