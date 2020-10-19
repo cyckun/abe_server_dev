@@ -17,6 +17,9 @@
         </a><br>
         <a class="card-link" href="{{ url_for('user.show_collections', username=current_user.username) }}">
             <span class="oi oi-star"></span> 我的收藏
+        </a><br>
+        <a class="card-link" href="{{ url_for('.download_key', username=current_user.username) }}">
+            <span class="oi oi-fire"></span> 下载TA公钥
         </a>
     </div>
 </div>
