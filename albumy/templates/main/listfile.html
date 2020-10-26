@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import user_card with context %}
+
+{% block title %}ListFile{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            {% for file in files %}
+                 <label>
+                     <input type="checkbox" value="{{ file.filename }}" name="{{ file.filename }}">
+                     <a target="" href=/files/{{ path }}{{ file.filename }}>{{ file.filename }}</a>
+                     <br>
+                 </label>
+                 <p><a class="btn btn-primary" href="{{ url_for('user.show_file_attri', filename=file.filename )}}">显示基本属性</a></p>
+
+            {% endfor %}
+        </div>
+    </div>
+    <div class="text-center">
+        <a class="btn btn-primary" href="{{ url_for('.listfile') }}">
+            <span class="oi oi-loop-circular"></span> Change
+        </a>
+    </div>
+{% endblock %}

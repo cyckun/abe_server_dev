@@ -12,8 +12,8 @@ from albumy.decorators import confirm_required, permission_required
 from albumy.emails import send_change_email_email
 from albumy.extensions import db, avatars
 from albumy.forms.user import EditProfileForm, DownloadskForm, UploadAvatarForm, CropAvatarForm, ChangeEmailForm, \
-    ChangePasswordForm, NotificationSettingForm, PrivacySettingForm, DeleteAccountForm
-from albumy.models import User, Photo, Collect
+    ChangePasswordForm, NotificationSettingForm, PrivacySettingForm, DeleteAccountForm, SetFileAttriForm
+from albumy.models import User, Photo, Collect, File
 from albumy.notifications import push_follow_notification
 from albumy.settings import Operations
 from albumy.utils import generate_token, validate_token, redirect_back, flash_errors
@@ -47,6 +47,31 @@ def show_collections(username):
     collects = pagination.items
     return render_template('user/collections.html', user=user, pagination=pagination, collects=collects)
 
+
+@user_bp.route('/<username>/files')
+def show_files(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    page = request.args.get('page', 1, type=int)
+    per_page = current_app.config['ALBUMY_PHOTO_PER_PAGE']
+    pagination = File.query.with_parent(user).order_by(File.timestamp.desc()).paginate(page, per_page)
+    files = pagination.items
+    return render_template('user/files.html', user=user, pagination=pagination, files=files)
+
+@user_bp.route('/<filename>')
+def show_file_attri(filename):
+    print("show files attri")
+    results = File.query(filename)
+    form = SetFileAttriForm()
+    if form.validate_on_submit():
+        data = form.name.data
+        dept = form.dept.data
+        time = form.time.data
+
+        return redirect(url_for('.index', username=current_user.username))
+    while el in results.items():
+        print("el.id ", el.id)
+
+    return render_template('user/setting/edit_fileattri.html', form=form)
 
 @user_bp.route('/follow/<username>', methods=['POST'])
 @login_required
@@ -121,6 +146,19 @@ def edit_profile():
     form.location.data = current_user.location
     return render_template('user/settings/edit_profile.html', form=form)
 
+@user_bp.route('/settings/fileattri', methods=['GET', 'POST'])
+@login_required
+def edit_fileattri():
+    print("test,enter fileattri.")
+    form = SetFileAttriForm()
+    if form.validate_on_submit():
+        data = form.name.data
+        dept = form.dept.data
+        time = form.time.data
+
+        return redirect(url_for('.index', username=current_user.username))
+
+    return render_template('user/settings/edit_fileattri.html', form=form)
 
 def set_userattri():
     print("jobnumber:", current_user.jobnumber)

@@ -115,6 +115,7 @@ class User(db.Model, UserMixin):
 
     role = db.relationship('Role', back_populates='users')
     photos = db.relationship('Photo', back_populates='author', cascade='all')
+    files = db.relationship('File', back_populates='author', cascade='all')
     comments = db.relationship('Comment', back_populates='author', cascade='all')
     notifications = db.relationship('Notification', back_populates='receiver', cascade='all')
     collections = db.relationship('Collect', back_populates='collector', cascade='all')
@@ -244,6 +245,21 @@ class Photo(db.Model):
     collectors = db.relationship('Collect', back_populates='collected', cascade='all')
     tags = db.relationship('Tag', secondary=tagging, back_populates='photos')
 
+
+# @whooshee.register_model('text')
+class File(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.String(500))
+    filename = db.Column(db.String(64))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    can_comment = db.Column(db.Boolean, default=True)
+    flag = db.Column(db.Integer, default=0)
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    author = db.relationship('User', back_populates='files')
+    #comments = db.relationship('Comment', back_populates='file', cascade='all')
+    #collectors = db.relationship('Collect', back_populates='collected', cascade='all')
+    # tags = db.relationship('Tag', secondary=tagging, back_populates='files')
 
 @whooshee.register_model('name')
 class Tag(db.Model):

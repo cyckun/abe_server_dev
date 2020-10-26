@@ -63,7 +63,7 @@ def register_blueprints(app):
 def register_shell_context(app):
     @app.shell_context_processor
     def make_shell_context():
-        return dict(db=db, User=User, Photo=Photo, Tag=Tag,
+        return dict(db=db, User=User, Photo=Photo, File=File, Tag=Tag,
                     Follow=Follow, Collect=Collect, Comment=Comment,
                     Notification=Notification)
 
@@ -131,13 +131,14 @@ def register_commands(app):
     @click.option('--user', default=10, help='Quantity of users, default is 10.')
     @click.option('--follow', default=30, help='Quantity of follows, default is 30.')
     @click.option('--photo', default=30, help='Quantity of photos, default is 30.')
+    @click.option('--file', default=10, help='Quantity of files, default is 10.')
     @click.option('--tag', default=20, help='Quantity of tags, default is 20.')
     @click.option('--collect', default=50, help='Quantity of collects, default is 50.')
     @click.option('--comment', default=100, help='Quantity of comments, default is 100.')
-    def forge(user, follow, photo, tag, collect, comment):
+    def forge(user, follow, photo, file, tag, collect, comment):
         """Generate fake data."""
 
-        from albumy.fakes import fake_admin, fake_comment, fake_follow, fake_photo, fake_tag, fake_user, fake_collect
+        from albumy.fakes import fake_admin, fake_comment, fake_follow, fake_photo, fake_file, fake_tag, fake_user, fake_collect
 
         db.drop_all()
         db.create_all()
@@ -154,6 +155,8 @@ def register_commands(app):
         fake_tag(tag)
         click.echo('Generating %d photos...' % photo)
         fake_photo(photo)
+        click.echo("Generating files ")
+        fake_file(file)
         click.echo('Generating %d collects...' % photo)
         fake_collect(collect)
         click.echo('Generating %d comments...' % comment)

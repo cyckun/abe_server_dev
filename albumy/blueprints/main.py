@@ -15,7 +15,7 @@ from sqlalchemy.sql.expression import func
 from albumy.decorators import confirm_required, permission_required
 from albumy.extensions import db
 from albumy.forms.main import DescriptionForm, TagForm, CommentForm, EncshareForm
-from albumy.models import User, Photo, Tag, Follow, Collect, Comment, Notification
+from albumy.models import User, Photo, Tag, Follow, Collect, Comment, Notification, File
 from albumy.notifications import push_comment_notification, push_collect_notification
 from albumy.utils import rename_image, resize_image, redirect_back, flash_errors
 from albumy.blueprints.cpabe_init import cpabe_init
@@ -46,6 +46,12 @@ def explore():
     print("test explore")
     photos = Photo.query.order_by(func.random()).limit(12)
     return render_template('main/explore.html', photos=photos)
+
+@main_bp.route('/listfile')
+def listfile():
+    print("test listfile")
+    files = File.query.order_by(func.random()).limit(12)
+    return render_template('main/listfile.html', files=files)
 
 
 @main_bp.route('/download_key')
@@ -141,7 +147,9 @@ def upload():
     if request.method == 'POST' and 'file' in request.files:
         f = request.files.get('file')
         filename = rename_image(f.filename)
+
         f.save(os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], filename))
+
         filename_s = resize_image(f, filename, current_app.config['ALBUMY_PHOTO_SIZE']['small'])
         filename_m = resize_image(f, filename, current_app.config['ALBUMY_PHOTO_SIZE']['medium'])
         photo = Photo(
@@ -160,17 +168,44 @@ def upload():
 # @confirm_required
 # @permission_required('UPLOAD')
 def upload_file():
-    print("test, inter uplaod file")
     if request.method == 'POST' and 'file' in request.files:
         f = request.files.get('file')
-        f.save(os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], f.filename))
-    else:
-        # f = request.files.get('file')
-        # f.save(os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], f.filename))
-        print("wront path.")
+        filename = rename_image(f.filename)
+        print("filename:", filename)
+        f.save(os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], filename))
+        ext = os.path.splitext(filename)[1]
+        if ext != ".jpg" and ext != ".png":
+            print("not image")
+            file = File(
+                filename=filename,
+                author=current_user._get_current_object()
+                # timestamp = fake.date_time_this_year()
+            )
+            db.session.add(file)
+            db.session.commit()
+        else:
+            filename_s = resize_image(f, filename, current_app.config['ALBUMY_PHOTO_SIZE']['small'])
+            filename_m = resize_image(f, filename, current_app.config['ALBUMY_PHOTO_SIZE']['medium'])
+            photo = Photo(
+                filename=filename,
+                filename_s=filename_s,
+                filename_m=filename_m,
+                author=current_user._get_current_object()
+            )
+            db.session.add(photo)
+            db.session.commit()
+
+        print("test, inter uplaod file, type f is :", type(f))
+
 
     return render_template('main/upload.html')
 
+
+@main_bp.route('/file/<int:file_id>')
+def show_file(file_id):
+    file = File.query.get_or_404(file_id)
+
+    return render_template('main/file.html', file=file)
 
 @main_bp.route('/photo/<int:photo_id>')
 def show_photo(photo_id):

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% from 'bootstrap/pagination.html' import render_pagination %}
+{% from 'macros.html' import user_card with context %}
+
+{% block title %}{{ user.name }}'s file{% endblock %}
+
+{% block content %}
+    {% include 'user/_header.html' %}
+    <div class="row">
+        <div class="col-md-12">
+            {% if user.public_files or current_user == user %}
+                {% if files %}
+                    {% for file in files %}
+                        <label>
+                            <input type="checkbox" value="{{ file.filename }}" name="{{ file.filename }}">
+                            <a target="" href=/files/{{ path }}{{ file.filename }}>{{ file.filename }}</a>
+                            <br>
+                        </label>
+                        <p><a class="btn btn-primary" href="{{ url_for('user.show_file_attri', filename=file.filename )}}">显示基本属性</a></p>
+                        <p><a class="btn btn-primary" href="{{ url_for('user.edit_fileattri', filename=file.filename )}}">分享属性</a></p>
+                    {% endfor %}
+                {% else %}
+                    <div class="tip">
+                        <h3>No file.</h3>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="tip">
+                    <h3>This user's files was private.</h3>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% if collects %}
+        <div class="page-footer">
+            {{ render_pagination(pagination, align='center') }}
+        </div>
+    {% endif %}
+{% endblock %}

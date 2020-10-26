@@ -37,6 +37,12 @@ class EditProfileForm(FlaskForm):
 class DownloadskForm(FlaskForm):
     submit = StringField()
 
+class SetFileAttriForm(FlaskForm):
+    time = StringField("Time", validators=[DataRequired(), Length(1, 254)])
+    dept = StringField("Dept", validators=[DataRequired(), Length(1, 254)])
+    name = StringField("Name")
+    submit = SubmitField()
+
 
 class UploadAvatarForm(FlaskForm):
     image = FileField('Upload', validators=[

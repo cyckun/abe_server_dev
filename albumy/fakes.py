@@ -14,7 +14,7 @@ from flask import current_app
 from sqlalchemy.exc import IntegrityError
 
 from albumy.extensions import db
-from albumy.models import User, Photo, Tag, Comment, Notification
+from albumy.models import User, Photo, Tag, Comment, Notification, File
 
 fake = Faker()
 
@@ -95,6 +95,23 @@ def fake_photo(count=30):
                 photo.tags.append(tag)
 
         db.session.add(photo)
+    db.session.commit()
+
+
+def fake_file(count=10):
+    # photos
+    upload_path = current_app.config['ALBUMY_UPLOAD_PATH']
+    i = random.randint(1, count)
+    filename = 'random_%d.txt' % i
+    file = File(
+        description=fake.text(),
+        filename=filename,
+        author=User.query.get(random.randint(1, User.query.count())),
+        timestamp=fake.date_time_this_year()
+    )
+
+    db.session.add(file)
+    print("add file ok.")
     db.session.commit()
 
 
