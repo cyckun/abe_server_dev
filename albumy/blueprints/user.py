@@ -18,6 +18,8 @@ from albumy.notifications import push_follow_notification
 from albumy.settings import Operations
 from albumy.utils import generate_token, validate_token, redirect_back, flash_errors
 from albumy.blueprints.cpabe_usrkey import cpabe_usrkey
+import time
+from albumy.blueprints.cpabe_enc import cpabe_enc_cli
 
 user_bp = Blueprint('user', __name__)
 
@@ -57,21 +59,12 @@ def show_files(username):
     files = pagination.items
     return render_template('user/files.html', user=user, pagination=pagination, files=files)
 
-@user_bp.route('/<filename>')
+@user_bp.route('/show_fileattri/<filename>', methods=['GET', 'POST'])
+@login_required
 def show_file_attri(filename):
-    print("show files attri")
-    results = File.query(filename)
-    form = SetFileAttriForm()
-    if form.validate_on_submit():
-        data = form.name.data
-        dept = form.dept.data
-        time = form.time.data
 
-        return redirect(url_for('.index', username=current_user.username))
-    while el in results.items():
-        print("el.id ", el.id)
-
-    return render_template('user/setting/edit_fileattri.html', form=form)
+    file = File.query.filter_by(filename=filename).first_or_404()
+    return render_template('user/file_attri.html', user=current_user, file=file)
 
 @user_bp.route('/follow/<username>', methods=['POST'])
 @login_required
@@ -146,15 +139,44 @@ def edit_profile():
     form.location.data = current_user.location
     return render_template('user/settings/edit_profile.html', form=form)
 
-@user_bp.route('/settings/fileattri', methods=['GET', 'POST'])
+def set_file_policy(dept="", time=0, name=""):
+    policy = ""
+    if dept != "":
+        policy = "Dept:"+dept
+    if time != 0:
+        #time_begin = time.time()
+        pass
+    if name != "":
+        policy = "Name:"+name
+    return policy
+
+@user_bp.route('/settings/fileattri/<filename>', methods=['GET', 'POST'])
 @login_required
-def edit_fileattri():
+def edit_fileattri(filename):
     print("test,enter fileattri.")
     form = SetFileAttriForm()
     if form.validate_on_submit():
-        data = form.name.data
+        name = form.name.data
         dept = form.dept.data
         time = form.time.data
+        policy = set_file_policy(dept, time, name)
+        file_path = current_app.config['ALBUMY_UPLOAD_PATH']
+        file_path += "/"
+        file_path += filename
+        with open(file_path, "rb") as f:
+            buffer = f.read()
+            f.close()
+
+        # modify it lator.
+        ct = ""
+        if len(buffer) > 0:ct = cpabe_enc_cli(buffer, policy)   # should user grpc to call enc service, as init cpabe is wastful;
+        else:pass
+        with open(file_path+".enc", "wb") as f:
+            f.write(ct)
+            f.close()
+        file = File.query.filter_by(filename=filename).first_or_404()
+        file.enc_flag = True
+        db.session.commit()
 
         return redirect(url_for('.index', username=current_user.username))
 

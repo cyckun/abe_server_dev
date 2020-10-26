@@ -28,6 +28,35 @@ def cpabe_enc():
         f.close()
     print("CP-ABE enc end.")
 
+def cpabe_enc_cli(message, policy):
+    # message: bytes;
+    # policy : str;
+    print("Deal client abe enc request")
+
+    openabe = pyopenabe.PyOpenABE()
+
+    cpabe = openabe.CreateABEContext("CP-ABE")
+
+    with open("./keys/mpk.txt", "rb") as f:
+        mpk = f.read()
+        f.close()
+
+    cpabe.importPublicParams(mpk)
+    # pt1 = b"hello world!"
+    # ct = cpabe.encrypt("((one or two) and three)", pt1)
+    time_enc = time.time()
+    # file_policy = "(((Dept:SecurityResearch) or (level >= 4 )) and (Company:ByteDance)) and date < April 18, 2021"
+    ct = cpabe.encrypt(policy, message)
+    print("enc time:", time.time()-time_enc)
+
+    '''
+    with open("./alice_ct.txt", "wb") as f:
+        f.write(ct)
+        f.close()
+    '''
+    print("CP-ABE enc end.")
+    return  ct
+
 if __name__ == '__main__':
    # rsa_test()
     cpabe_enc()

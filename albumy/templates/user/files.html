@@ -16,7 +16,7 @@
                             <a target="" href=/files/{{ path }}{{ file.filename }}>{{ file.filename }}</a>
                             <br>
                         </label>
-                        <p><a class="btn btn-primary" href="{{ url_for('user.show_file_attri', filename=file.filename )}}">显示基本属性</a></p>
+                        <p><a class="btn btn-primary" href="{{ url_for('user.show_file_attri', filename=file.filename)}}">显示基本属性</a></p>
                         <p><a class="btn btn-primary" href="{{ url_for('user.edit_fileattri', filename=file.filename )}}">分享属性</a></p>
                     {% endfor %}
                 {% else %}

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% from 'bootstrap/pagination.html' import render_pagination %}
+{% from 'macros.html' import user_card with context %}
+
+{% block title %}{{ user.name }}'s file{% endblock %}
+
+{% block content %}
+    {% include 'user/_header.html' %}
+    <div class="row">
+        <div class="col-md-12">
+            File Name:<br>
+            <input type="text" name="filename" value={{ file.filename }} size="100" >
+            <br>
+            FileAuthor:<br>
+            <input type="text" name="fileauthor" value={{ file.author_id }} size="100" >
+            <br>
+            FileEncFlag:<br>
+            <input type="text" name="fileenc" value={{ file.enc_flag }} size="100" >
+            <br>
+            FileDescription:<br>
+            <input type="text" name="filedescrip" value={{ file.description }} size="100" >
+            <br>
+            FileCreatedTime:<br>
+            <input type="text" name="filetimestamp" value={{ file.timestamp }} size="100" >
+            <br>
+
+        </div>
+    </div>
+
+{% endblock %}

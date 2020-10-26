@@ -255,6 +255,8 @@ class File(db.Model):
     can_comment = db.Column(db.Boolean, default=True)
     flag = db.Column(db.Integer, default=0)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    enc_flag = db.Column(db.Boolean, default=False)
+    enc_policy = db.Column(db.String(200))
 
     author = db.relationship('User', back_populates='files')
     #comments = db.relationship('Comment', back_populates='file', cascade='all')
