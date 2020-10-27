@@ -66,6 +66,15 @@ def show_file_attri(filename):
     file = File.query.filter_by(filename=filename).first_or_404()
     return render_template('user/file_attri.html', user=current_user, file=file)
 
+@user_bp.route('/dec_file/<filename>', methods=['GET', 'POST'])
+@login_required
+def dec_file(filename):
+    #deal lator
+
+    file = File.query.filter_by(filename=filename).first_or_404()
+    return render_template('user/file_attri.html', user=current_user, file=file)
+
+
 @user_bp.route('/follow/<username>', methods=['POST'])
 @login_required
 @confirm_required
@@ -140,6 +149,7 @@ def edit_profile():
     return render_template('user/settings/edit_profile.html', form=form)
 
 def set_file_policy(dept="", time=0, name=""):
+    # (Dept:SecurityResearch)
     policy = ""
     if dept != "":
         policy = "Dept:"+dept
@@ -150,9 +160,9 @@ def set_file_policy(dept="", time=0, name=""):
         policy = "Name:"+name
     return policy
 
-@user_bp.route('/settings/fileattri/<filename>', methods=['GET', 'POST'])
+@user_bp.route('/settings/accesspolicy/<filename>', methods=['GET', 'POST'])
 @login_required
-def edit_fileattri(filename):
+def set_file_acp(filename):
     print("test,enter fileattri.")
     form = SetFileAttriForm()
     if form.validate_on_submit():
@@ -176,6 +186,7 @@ def edit_fileattri(filename):
             f.close()
         file = File.query.filter_by(filename=filename).first_or_404()
         file.enc_flag = True
+        file.enc_policy = policy
         db.session.commit()
 
         return redirect(url_for('.index', username=current_user.username))

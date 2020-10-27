@@ -54,6 +54,54 @@ def listfile():
     return render_template('main/listfile.html', files=files)
 
 
+def query_file(filename):
+    path = current_app.config['ALBUMY_UPLOAD_PATH'] + "/" + filename
+    flag = os.path.isfile(path)
+    if flag:
+        format = os.path.splitext(path)[1]
+        if format in ['.txt', '.xml', '.py', '.html']:
+            with open(path, 'rb') as f:
+                res = current_app.make_response(f.read())
+            res.headers['Content-Type'] = 'text/plain'
+            return res
+        elif format in ['.pdf']:
+            with open(path, 'rb') as f:
+                res = current_app.make_response(f.read())
+            res.headers['Content-Type'] = 'application/pdf'
+            return res
+        elif format in ['.pptx', '.ppt']:
+            with open(path, 'rb') as f:
+                res = current_app.make_response(f.read())
+            res.headers['Content-Type'] = 'application/ppt'
+            return res
+        elif format in ['.mp4', '.wma']:  # lator change to online show
+            with open(path, 'rb') as f:
+                res = current_app.make_response(f.read())
+            res.headers['Content-Type'] = 'application/video'
+            return res
+        else:
+            return "file format unkown"
+    else:
+        return "file path wrong"
+
+# @admin_bp.route('/files/<filename>', methods=['GET', 'POST'])
+@main_bp.route('/files/<filename>', methods=['GET'])
+@login_required
+def open_file_with_name(filename):
+    # if current_user == file.user;
+    file = File.query.filter_by(filename=filename).first_or_404()
+    if current_user.id == file.author_id:
+        res = query_file(filename)
+        return res
+    else:
+        print("test plidkfdl:", file.enc_policy.split(":")[1])
+        if current_user.department == file.enc_policy.split(":")[1]:
+            res = query_file(filename)
+            return res
+        else:
+            return "NO permmit to read"
+
+
 @main_bp.route('/download_key')
 @login_required
 def download_key():
@@ -170,7 +218,8 @@ def upload():
 def upload_file():
     if request.method == 'POST' and 'file' in request.files:
         f = request.files.get('file')
-        filename = rename_image(f.filename)
+        #filename = rename_image(f.filename)
+        filename = f.filename
         print("filename:", filename)
         f.save(os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], filename))
         ext = os.path.splitext(filename)[1]
