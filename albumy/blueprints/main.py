@@ -84,22 +84,24 @@ def query_file(filename):
     else:
         return "file path wrong"
 
+def check_access(file, filename):  # should expand lator.
+    if current_user.department == file.enc_policy.split(":")[1]:
+        res = query_file(filename)
+        return res
+    else:
+        return "NO permmit to read"
+
 # @admin_bp.route('/files/<filename>', methods=['GET', 'POST'])
 @main_bp.route('/files/<filename>', methods=['GET'])
 @login_required
 def open_file_with_name(filename):
     # if current_user == file.user;
     file = File.query.filter_by(filename=filename).first_or_404()
-    if current_user.id == file.author_id:
+    if (current_user.id == file.author_id) or (file.enc_flag == False):
         res = query_file(filename)
         return res
     else:
-        print("test plidkfdl:", file.enc_policy.split(":")[1])
-        if current_user.department == file.enc_policy.split(":")[1]:
-            res = query_file(filename)
-            return res
-        else:
-            return "NO permmit to read"
+        return check_access(file, filename)
 
 
 @main_bp.route('/download_key')

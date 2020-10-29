@@ -68,7 +68,7 @@ def show_file_attri(filename):
 
 @user_bp.route('/dec_file/<filename>', methods=['GET', 'POST'])
 @login_required
-def dec_file(filename):
+def dec_file(filename):  # not used yet
     #deal lator
 
     file = File.query.filter_by(filename=filename).first_or_404()

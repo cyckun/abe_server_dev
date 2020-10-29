@@ -22,6 +22,7 @@
                 {% else %}
                     <div class="tip">
                         <h3>No file.</h3>
+                        <a class="btn btn-link" href="{{ url_for('main.upload') }}">Upload</a>
                     </div>
                 {% endif %}
             {% else %}
