@@ -1,19 +1,16 @@
-# Albumy
+# ABE_Sever
 
-*Capture and share every wonderful moment.*
+*Trusted Authority for Users to Join.*
 
-> Example application for *[Python Web Development with Flask](http://helloflask.com/en/book)* (《[Flask Web 开发实战](http://helloflask.com/book)》).
+Demo: http://127.0.0.1:5000
 
-Demo: http://albumy.helloflask.com
-
-![Screenshot](http://helloflask.com/screenshots/albumy.png)
 
 ## Installation
 
 clone:
 ```
-$ git clone https://github.com/greyli/albumy.git
-$ cd albumy
+$ git clone https://github.com/cyckun/abe_server.git
+$ cd abe_server
 ```
 create & activate virtual env then install dependency:
 
@@ -35,8 +32,8 @@ $ flask run
 * Running on http://127.0.0.1:5000/
 ```
 Test account:
-* email: `admin@helloflask.com`
-* password: `helloflask`
+* email: cyc
+* password: 1
 
 ## License
 
