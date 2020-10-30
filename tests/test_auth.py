@@ -7,9 +7,9 @@
 """
 from flask import url_for
 
-from albumy.models import User
-from albumy.settings import Operations
-from albumy.utils import generate_token
+from server.models import User
+from server.settings import Operations
+from server.utils import generate_token
 from tests.base import BaseTestCase
 
 

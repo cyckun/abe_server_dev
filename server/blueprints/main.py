@@ -12,13 +12,13 @@ from flask import render_template, flash, redirect, url_for, current_app, \
 from flask_login import login_required, current_user
 from sqlalchemy.sql.expression import func
 
-from albumy.decorators import confirm_required, permission_required
-from albumy.extensions import db
-from albumy.forms.main import DescriptionForm, TagForm, CommentForm, EncshareForm
-from albumy.models import User, Photo, Tag, Follow, Collect, Comment, Notification, File
-from albumy.notifications import push_comment_notification, push_collect_notification
-from albumy.utils import rename_image, resize_image, redirect_back, flash_errors
-from albumy.blueprints.cpabe_init import cpabe_init
+from server.decorators import confirm_required, permission_required
+from server.extensions import db
+from server.forms.main import DescriptionForm, TagForm, CommentForm, EncshareForm
+from server.models import User, Photo, Tag, Follow, Collect, Comment, Notification, File
+from server.notifications import push_comment_notification, push_collect_notification
+from server.utils import rename_image, resize_image, redirect_back, flash_errors
+from server.blueprints.cpabe_init import cpabe_init
 
 main_bp = Blueprint('main', __name__)
 
@@ -27,7 +27,7 @@ main_bp = Blueprint('main', __name__)
 def index():
     if current_user.is_authenticated:
         page = request.args.get('page', 1, type=int)
-        per_page = current_app.config['ALBUMY_PHOTO_PER_PAGE']
+        per_page = current_app.config['ABE_PHOTO_PER_PAGE']
         pagination = Photo.query \
             .join(Follow, Follow.followed_id == Photo.author_id) \
             .filter(Follow.follower_id == current_user.id) \
@@ -55,7 +55,7 @@ def listfile():
 
 
 def query_file(filename):
-    path = current_app.config['ALBUMY_UPLOAD_PATH'] + "/" + filename
+    path = current_app.config['ABE_UPLOAD_PATH'] + "/" + filename
     flag = os.path.isfile(path)
     if flag:
         format = os.path.splitext(path)[1]
@@ -110,7 +110,7 @@ def download_key():
     print("test download")
     # cpabe_init()
 
-    return send_from_directory(current_app.config['ALBUMY_UPLOAD_PATH'], filename="mpk.txt", as_attachment=True)
+    return send_from_directory(current_app.config['ABE_UPLOAD_PATH'], filename="mpk.txt", as_attachment=True)
 
 
 @main_bp.route('/download_key')
@@ -118,7 +118,7 @@ def download_key():
 def download_userkey():
     print("test download user_key")
 
-    return send_from_directory(current_app.config['ALBUMY_UPLOAD_PATH'], filename="key.txt", as_attachment=True)
+    return send_from_directory(current_app.config['ABE_UPLOAD_PATH'], filename="key.txt", as_attachment=True)
 
 
 @main_bp.route('/search')
@@ -130,7 +130,7 @@ def search():
 
     category = request.args.get('category', 'photo')
     page = request.args.get('page', 1, type=int)
-    per_page = current_app.config['ALBUMY_SEARCH_RESULT_PER_PAGE']
+    per_page = current_app.config['server_SEARCH_RESULT_PER_PAGE']
     if category == 'user':
         pagination = User.query.whooshee_search(q).paginate(page, per_page)
     elif category == 'tag':
@@ -145,7 +145,7 @@ def search():
 @login_required
 def show_notifications():
     page = request.args.get('page', 1, type=int)
-    per_page = current_app.config['ALBUMY_NOTIFICATION_PER_PAGE']
+    per_page = current_app.config['ABE_NOTIFICATION_PER_PAGE']
     notifications = Notification.query.with_parent(current_user)
     filter_rule = request.args.get('filter')
     if filter_rule == 'unread':
@@ -181,7 +181,7 @@ def read_all_notification():
 
 @main_bp.route('/uploads/<path:filename>')
 def get_image(filename):
-    return send_from_directory(current_app.config['ALBUMY_UPLOAD_PATH'], filename)
+    return send_from_directory(current_app.config['ABE_UPLOAD_PATH'], filename)
 
 
 @main_bp.route('/avatars/<path:filename>')
@@ -198,10 +198,10 @@ def upload():
         f = request.files.get('file')
         filename = rename_image(f.filename)
 
-        f.save(os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], filename))
+        f.save(os.path.join(current_app.config['ABE_UPLOAD_PATH'], filename))
 
-        filename_s = resize_image(f, filename, current_app.config['ALBUMY_PHOTO_SIZE']['small'])
-        filename_m = resize_image(f, filename, current_app.config['ALBUMY_PHOTO_SIZE']['medium'])
+        filename_s = resize_image(f, filename, current_app.config['ABE_PHOTO_SIZE']['small'])
+        filename_m = resize_image(f, filename, current_app.config['ABE_PHOTO_SIZE']['medium'])
         photo = Photo(
             filename=filename,
             filename_s=filename_s,
@@ -223,7 +223,7 @@ def upload_file():
         #filename = rename_image(f.filename)
         filename = f.filename
         print("filename:", filename)
-        f.save(os.path.join(current_app.config['ALBUMY_UPLOAD_PATH'], filename))
+        f.save(os.path.join(current_app.config['ABE_UPLOAD_PATH'], filename))
         ext = os.path.splitext(filename)[1]
         if ext != ".jpg" and ext != ".png":
             print("not image")
@@ -235,8 +235,8 @@ def upload_file():
             db.session.add(file)
             db.session.commit()
         else:
-            filename_s = resize_image(f, filename, current_app.config['ALBUMY_PHOTO_SIZE']['small'])
-            filename_m = resize_image(f, filename, current_app.config['ALBUMY_PHOTO_SIZE']['medium'])
+            filename_s = resize_image(f, filename, current_app.config['ABE_PHOTO_SIZE']['small'])
+            filename_m = resize_image(f, filename, current_app.config['ABE_PHOTO_SIZE']['medium'])
             photo = Photo(
                 filename=filename,
                 filename_s=filename_s,
@@ -262,7 +262,7 @@ def show_file(file_id):
 def show_photo(photo_id):
     photo = Photo.query.get_or_404(photo_id)
     page = request.args.get('page', 1, type=int)
-    per_page = current_app.config['ALBUMY_COMMENT_PER_PAGE']
+    per_page = current_app.config['ABE_COMMENT_PER_PAGE']
     pagination = Comment.query.with_parent(photo).order_by(Comment.timestamp.asc()).paginate(page, per_page)
     comments = pagination.items
 
@@ -354,7 +354,7 @@ def report_photo(photo_id):
 def show_collectors(photo_id):
     photo = Photo.query.get_or_404(photo_id)
     page = request.args.get('page', 1, type=int)
-    per_page = current_app.config['ALBUMY_USER_PER_PAGE']
+    per_page = current_app.config['ABE_USER_PER_PAGE']
     pagination = Collect.query.with_parent(photo).order_by(Collect.timestamp.asc()).paginate(page, per_page)
     collects = pagination.items
     return render_template('main/collectors.html', collects=collects, photo=photo, pagination=pagination)
@@ -515,7 +515,7 @@ def delete_comment(comment_id):
 def show_tag(tag_id, order):
     tag = Tag.query.get_or_404(tag_id)
     page = request.args.get('page', 1, type=int)
-    per_page = current_app.config['ALBUMY_PHOTO_PER_PAGE']
+    per_page = current_app.config['ABE_PHOTO_PER_PAGE']
     order_rule = 'time'
     pagination = Photo.query.with_parent(tag).order_by(Photo.timestamp.desc()).paginate(page, per_page)
     photos = pagination.items

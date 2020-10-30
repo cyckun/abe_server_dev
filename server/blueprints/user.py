@@ -8,18 +8,18 @@
 from flask import render_template, flash, redirect, url_for, current_app, request, Blueprint, send_from_directory
 from flask_login import login_required, current_user, fresh_login_required, logout_user
 
-from albumy.decorators import confirm_required, permission_required
-from albumy.emails import send_change_email_email
-from albumy.extensions import db, avatars
-from albumy.forms.user import EditProfileForm, DownloadskForm, UploadAvatarForm, CropAvatarForm, ChangeEmailForm, \
+from server.decorators import confirm_required, permission_required
+from server.emails import send_change_email_email
+from server.extensions import db, avatars
+from server.forms.user import EditProfileForm, DownloadskForm, UploadAvatarForm, CropAvatarForm, ChangeEmailForm, \
     ChangePasswordForm, NotificationSettingForm, PrivacySettingForm, DeleteAccountForm, SetFileAttriForm
-from albumy.models import User, Photo, Collect, File
-from albumy.notifications import push_follow_notification
-from albumy.settings import Operations
-from albumy.utils import generate_token, validate_token, redirect_back, flash_errors
-from albumy.blueprints.cpabe_usrkey import cpabe_usrkey
+from server.models import User, Photo, Collect, File
+from server.notifications import push_follow_notification
+from server.settings import Operations
+from server.utils import generate_token, validate_token, redirect_back, flash_errors
+from server.blueprints.cpabe_usrkey import cpabe_usrkey
 import time
-from albumy.blueprints.cpabe_enc import cpabe_enc_cli
+from server.blueprints.cpabe_enc import cpabe_enc_cli
 
 user_bp = Blueprint('user', __name__)
 
@@ -34,7 +34,7 @@ def index(username):
         logout_user()
 
     page = request.args.get('page', 1, type=int)
-    per_page = current_app.config['ALBUMY_PHOTO_PER_PAGE']
+    per_page = current_app.config['ABE_PHOTO_PER_PAGE']
     pagination = Photo.query.with_parent(user).order_by(Photo.timestamp.desc()).paginate(page, per_page)
     photos = pagination.items
     return render_template('user/index.html', user=user, pagination=pagination, photos=photos)
@@ -44,7 +44,7 @@ def index(username):
 def show_collections(username):
     user = User.query.filter_by(username=username).first_or_404()
     page = request.args.get('page', 1, type=int)
-    per_page = current_app.config['ALBUMY_PHOTO_PER_PAGE']
+    per_page = current_app.config['ABE_PHOTO_PER_PAGE']
     pagination = Collect.query.with_parent(user).order_by(Collect.timestamp.desc()).paginate(page, per_page)
     collects = pagination.items
     return render_template('user/collections.html', user=user, pagination=pagination, collects=collects)
@@ -54,7 +54,7 @@ def show_collections(username):
 def show_files(username):
     user = User.query.filter_by(username=username).first_or_404()
     page = request.args.get('page', 1, type=int)
-    per_page = current_app.config['ALBUMY_PHOTO_PER_PAGE']
+    per_page = current_app.config['ABE_PHOTO_PER_PAGE']
     pagination = File.query.with_parent(user).order_by(File.timestamp.desc()).paginate(page, per_page)
     files = pagination.items
     return render_template('user/files.html', user=user, pagination=pagination, files=files)
@@ -109,7 +109,7 @@ def unfollow(username):
 def show_followers(username):
     user = User.query.filter_by(username=username).first_or_404()
     page = request.args.get('page', 1, type=int)
-    per_page = current_app.config['ALBUMY_USER_PER_PAGE']
+    per_page = current_app.config['ABE_USER_PER_PAGE']
     pagination = user.followers.paginate(page, per_page)
     follows = pagination.items
     return render_template('user/followers.html', user=user, pagination=pagination, follows=follows)
@@ -119,7 +119,7 @@ def show_followers(username):
 def show_following(username):
     user = User.query.filter_by(username=username).first_or_404()
     page = request.args.get('page', 1, type=int)
-    per_page = current_app.config['ALBUMY_USER_PER_PAGE']
+    per_page = current_app.config['ABE_USER_PER_PAGE']
     pagination = user.following.paginate(page, per_page)
     follows = pagination.items
     return render_template('user/following.html', user=user, pagination=pagination, follows=follows)
@@ -170,7 +170,7 @@ def set_file_acp(filename):
         dept = form.dept.data
         time = form.time.data
         policy = set_file_policy(dept, time, name)
-        file_path = current_app.config['ALBUMY_UPLOAD_PATH']
+        file_path = current_app.config['ABE_UPLOAD_PATH']
         file_path += "/"
         file_path += filename
         with open(file_path, "rb") as f:
@@ -228,7 +228,7 @@ def download_sk():
     flash('sk updated.', 'success')
     # filename = current_user.jobnumber
     # return redirect(url_for('.index', username=current_user.username))
-    return send_from_directory(current_app.config['ALBUMY_UPLOAD_PATH'], filename="sk.txt", as_attachment=True)
+    return send_from_directory(current_app.config['ABE_UPLOAD_PATH'], filename="sk.txt", as_attachment=True)
     # return render_template('user/settings/edit_profile.html', form=form)
     # return "download sk OK "
 

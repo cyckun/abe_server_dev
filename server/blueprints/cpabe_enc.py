@@ -1,7 +1,6 @@
 from __future__ import print_function
 import pyopenabe
 import time
-import rsa
 
 
 def cpabe_enc():

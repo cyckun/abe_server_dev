@@ -13,8 +13,8 @@ from faker import Faker
 from flask import current_app
 from sqlalchemy.exc import IntegrityError
 
-from albumy.extensions import db
-from albumy.models import User, Photo, Tag, Comment, Notification, File
+from server.extensions import db
+from server.models import User, Photo, Tag, Comment, Notification, File
 
 fake = Faker()
 
@@ -70,7 +70,7 @@ def fake_tag(count=20):
 
 def fake_photo(count=30):
     # photos
-    upload_path = current_app.config['ALBUMY_UPLOAD_PATH']
+    upload_path = current_app.config['ABE_UPLOAD_PATH']
     for i in range(count):
         print(i)
 
@@ -100,7 +100,7 @@ def fake_photo(count=30):
 
 def fake_file(count=10):
     # photos
-    upload_path = current_app.config['ALBUMY_UPLOAD_PATH']
+    upload_path = current_app.config['ABE_UPLOAD_PATH']
     i = random.randint(1, count)
     filename = 'random_%d.txt' % i
     file = File(
